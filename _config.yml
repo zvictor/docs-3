@@ -19,6 +19,7 @@ sidebar_categories:
     - apollo-client/core
     - apollo-client/react
     - apollo-client/meteor
+    - apollo-client/angular2
     - apollo-client/redux
     - apollo-client/network
     - apollo-client/devtools
