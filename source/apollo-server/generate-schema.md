@@ -8,7 +8,6 @@ The graphql-tools package allows you to create a GraphQLSchema instance from Gra
 
 <h3 id="generateSchema" title="generateSchema">generateSchema(typeDefinitions)</h3>
 
-**Function signature**
 ```
 import { generateSchema } from 'graphql-tools';
 
