@@ -9,6 +9,7 @@ This guide will explain all the parts required for a simple GraphQL Blog server.
 We'll be using a package called [graphql-tools](https://www.npmjs.com/package/graphql-tools), which is actively being developed for [Apollo](http://www.apollostack.com). There are of course many ways to build a GraphQL server for Node.js, but this is the way we recommend. It describes each step in detail, from defining a schema to writing your own resolve functions and loaders.
 
 ## Setup
+
 For the remainder of this guide, we'll assume that you are familiar with using the command line of your operating system and already have Node 5 and npm set up for your environment.
 If that's not the case, you should [do that first](https://nodejs.org/en/download/package-manager/) before you read the rest of this guide.
 
@@ -30,7 +31,8 @@ If all goes well, the server should now print out a message that it is listening
 ![Testing the server with GraphiQL](graphiql-test.png)
 
 **For advanced users:**
-If you already have an express server or a GraphQL server set up, then you can also simply install graphql-tools with the command `npm install graphql-tools` and jump to the [Tools](tools.html) section in this guide to learn about using the individual parts of the graphql-tools package.
+
+If you already have an express server or a GraphQL server set up, then you can also simply install graphql-tools with the command `npm install graphql-tools` and read the articles listed in the sidebar to learn about using the individual parts of the graphql-tools package.
 
 
 ## Schema
