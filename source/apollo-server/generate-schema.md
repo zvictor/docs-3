@@ -18,13 +18,14 @@ const jsSchema = generateSchema(typeDefinitions);
 `typeDefinitions` should be an array of GraphQL schema language strings or a function that takes no arguments and returns an array of GraphQL schema language strings. The order of the strings in the array is not important, but it must include a schema definition. The schema must define a query type, which means a minimal schema would look something like this:
 ```js
 const typeDefinition = [`
-schema {
-  query: RootQuery
-}
+  schema {
+    query: RootQuery
+  }
 
-type RootQuery {
-  aNumber: Int
-}`];
+  type RootQuery {
+    aNumber: Int
+  }
+`];
 
 const jsSchema = generateSchema(typeDefinition);
 ```

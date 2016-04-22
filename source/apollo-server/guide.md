@@ -1,5 +1,5 @@
 ---
-title: GraphQL server tutorial
+title: Tutorial
 order: 202
 description: A step-by-step guide for setting up a basic GraphQL server with Apollo.
 ---
