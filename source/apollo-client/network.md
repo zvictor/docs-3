@@ -37,43 +37,13 @@ This represents a result that comes back from the GraphQL server.
 
 <h2 id="query-batching">Query batching</h2>
 
-The Apollo client supports transparently batching multiple queries in a single roundtrip when they are fired at times that are close to one another. This means, for example, that when your UI loads, there'll be a single HTTP roundtrip fired rather than one for each query. There are two ways to get batching support: use a GraphQL server implementation that supports query batching over the network transport such as Apollo server or add query batching to an existing `NetworkInterface` using query merging.
-
-The preferred approach is to use a modern GraphQL server such as Apollo server that implements query batching over the transport. Since this batching approach leaves your query documents exactly the way they are sent from the client (i.e. multiple queries are not merged into a single query), debugging, logging, etc. are much more pleasant. If using such a GraphQL implementation is not possible, Apollo also provides query merging as a batching mechanism that is supported on all GraphQL servers.
+The Apollo client supports transparently batching multiple queries in a single roundtrip when they are fired at times that are close to one another. This means, for example, that when your UI loads, there'll be a single HTTP roundtrip fired rather than one for each query. In order to support all GraphQL servers (including those that do not implement transport-level batching), Apollo implements query batching by merging together queries that are fired at similar times. To turn on query batching, you must pass `shouldBatch: true` as one of the key-value pairs to the `QueryManager`.
 
 <h3 id="BatchedNetworkInterface">interface BatchedNetworkInterface</h3>
 
 This is the interface that an object should implement so that it can be used by Apollo Client to fetch batched queries.
 
 - `batchQuery(request: GraphQLRequest[]): Promise<GraphQLResult[]>` This function on a batched network interface takes an array of GraphQL request objects, submits a batched request that represents each of the requests and returns a promise that is resolved with the results of each of the GraphQL requests. The promise should be rejected in case of a network error.
-
-<h3 id="TransportBatching">Batching over the HTTP transport</h3>
-
-Apollo client provides an implementation of query batching over the HTTP transport which will work with any GraphQL server that supports it. Single (i.e. non-batched) queries are sent to the server as the following JSON:
-
-```
-{
-    query: "< query document as a string >",
-    variables: "variable object ",
-}
-```
-
-When several queries are batched together, the following is sent to the server:
-
-```
-{
-    queries: [
-        <query document 0 as string>,
-        <query document 1 as string>,
-        ...
-    ],
-    variables: [
-        <variables for document 0>,
-        <variables for document 1>,
-        ...
-    ],
-}
-```
 
 <h3 id="QueryMerging">Query merging</h3>
 
