@@ -37,32 +37,29 @@ This represents a result that comes back from the GraphQL server.
 
 <h2 id="query-batching">Query batching</h2>
 
-The Apollo client supports transparently batching multiple queries in a single roundtrip when they are fired at times that are close to one another. This means, for example, that when your UI loads, there'll be a single HTTP roundtrip fired rather than one for each query. In order to support all GraphQL servers (including those that do not implement transport-level batching), Apollo implements query batching by merging together queries that are fired at similar times. To turn on query batching, you must pass `shouldBatch: true` as one of the key-value pairs to the `QueryManager`.
+Apollo Client supports transparently batching multiple queries in a single roundtrip when they are fired at times that are close to one another, i.e. are fired within the same 10 millisecond tick of the batcher. This means, for example, that when your UI loads, there'll be a single HTTP roundtrip fired rather than one for each query. In order to support all GraphQL servers (including those that do not implement transport-level batching), Apollo implements query batching by merging together queries that are fired within the same tick of the batcher.
 
-<h3 id="BatchedNetworkInterface">interface BatchedNetworkInterface</h3>
+To turn on query batching, you must pass `shouldBatch: true` as one of the key-value pairs to the `ApolloClient` constructor. In addition, you must set your `ApolloClient` instance's network interface to an instance that implements `BatchedNetworkInterface`. Such a `BatchedNetworkInterface` can be constructed from a standard `NetworkInterface` (i.e. one that does not support batching) using the method `addQueryMerging` from `apollo-client/networkInterface`, as described below.
 
-This is the interface that an object should implement so that it can be used by Apollo Client to fetch batched queries.
-
-- `batchQuery(request: GraphQLRequest[]): Promise<GraphQLResult[]>` This function on a batched network interface takes an array of GraphQL request objects, submits a batched request that represents each of the requests and returns a promise that is resolved with the results of each of the GraphQL requests. The promise should be rejected in case of a network error.
 
 <h3 id="QueryMerging">Query merging</h3>
 
-Apollo can provide batching functionality over a standard `NetworkInterface` implementation that does not typically support batching by merging queries together under one root query and then unpacking the merged result returned by the server. To see an example of query merging within Apollo, consider the following GraphQL queries:
+Apollo can provide batching functionality over a standard `NetworkInterface` implementation that does not typically support batching. It does this by merging queries together under one root query and then unpacking the merged result returned by the server. To see an example of query merging within Apollo, consider the following GraphQL queries:
 
 ```graphql
 query someAuthor {
-    author {
-        firstName
-        lastName
-    }
+  author {
+    firstName
+    lastName
+  }
 }
 ```
 
 ```graphql
 query somePerson {
-    person {
-        name
-    }
+  person {
+    name
+  }
 }
 ```
 
@@ -70,14 +67,14 @@ Assume these two queries are fired at roughly the same time (i.e. within the sam
 
 ```graphql
 query __composed {
-    ___someAuthor___requestIndex_0__fieldIndex_0: author {
-        firstName
-        lastName
-    }
+  ___someAuthor___requestIndex_0__fieldIndex_0: author {
+    firstName
+    lastName
+  }
 
-    ___somePerson___requestIndex_1__fieldIndex_0: person {
-        name
-    }
+  ___somePerson___requestIndex_1__fieldIndex_0: person {
+    name
+  }
 }
 ```
 
@@ -85,23 +82,58 @@ Once the results are returned for this query, Apollo will take care of unpacking
 
 ```json
 {
-    "data": {
-        "author": {
-            "firstName": "John",
-            "lastName": "Smith"
-        }
+  "data": {
+    "author": {
+      "firstName": "John",
+      "lastName": "Smith"
     }
+  }
 }
 ```
 
 ```json
-    "data": {
-        "person": {
-            "name": "John Smith"
-        }
+{
+  "data": {
+    "person": {
+      "name": "John Smith"
     }
+  }
+}
 ```
 
 This means that your client code and server implementation can remain completely oblivious to the batching that Apollo performs.
 
-- `addQueryMerging(networkInterface: NetworkInterface): BatchedNetworkInterface` This function takes an arbitrary `NetworkInterface` implementation and returns a `BatchedNetworkInterface` that batches queries together using query merging when `batchQuery` is called on it.
+- `addQueryMerging(networkInterface: NetworkInterface): BatchedNetworkInterface` This function takes an arbitrary `NetworkInterface` implementation and returns a `BatchedNetworkInterface` that batches queries together using query merging when `batchQuery` is called on it. The function can be imported from `apollo-client/networkInterface`.
+
+
+<h3 id="BatchedNetworkInterface">interface BatchedNetworkInterface</h3>
+
+This is the interface that an object should implement so that it can be used by Apollo Client to fetch batched queries.
+
+- `batchQuery(request: GraphQLRequest[]): Promise<GraphQLResult[]>` This function on a batched network interface that takes an array of GraphQL request objects, submits a batched request that represents each of the requests and returns a promise. This promise is resolved with the results of each of the GraphQL requests. The promise should be rejected in case of a network error.
+
+<h3 id="BatchingExample">Batching example</h3>
+
+To set up batching on Apollo client, we just have to create the right network interface and pass in an option to the `ApolloClient` constructor that tells it to start batching queries. In code, this looks like:
+
+```javascript
+import ApolloClient, { createNetworkInterface } from 'apollo-client';
+import { addQueryMerging } from 'apollo-client/networkInterface';
+
+const networkInterface = addQueryMerging(createNetworkInterface('/graphql', {
+  credentials: 'same-origin',
+}));
+
+const apolloClient = new ApolloClient({
+  networkInterface: networkInterface,
+  // ... other options ...
+});
+
+// These two queries happen in quick suggestion, possibly in totally different
+// places within your UI.
+apolloClient.query( { query: firstQuery })
+apolloClient.query( { query: secondQuery })
+
+// You don't have to do anything special - Apollo will now take care of batching the
+// queries that were fired above.
+```
