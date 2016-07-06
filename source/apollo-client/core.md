@@ -129,6 +129,7 @@ Run a GraphQL query and return a promise that resolves to a `GraphQLResult`.
 - `query: string` A GraphQL query string to fetch.
 - `variables: Object` The variables to pass along with the query.
 - `forceFetch: boolean` (Optional, default is `false`) If true, send the query to the server directly without any pre-processing. If false, check if we have some of the data for the query on the client already, and send a minimized query to the server to refetch only the objects we don't have already.
+- `fragments: FragmentDefinition[]` (Optional, default is `[]`) An array of fragment definitions that the `query` can reference. Generally created through `createFragment`, as described in the [fragments section](core.html#fragments).
 
 Here's how you would run a single query and get the result:
 
@@ -177,6 +178,7 @@ Run a GraphQL query and return a QueryObservable that is updated as the query re
 - `forceFetch: boolean` (Optional, default is `false`) If true, send the query to the server directly without any pre-processing. If false, check if we have some of the data for the query on the client already, and send a minimized query to the server to refetch only the objects we don't have already.
 - `returnPartialData: boolean` (Optional, default is `false`) If false, wait until the query has finished the initial load from the server to return any data. If true, return any data we might happen to already have in the store immediately. If you pass true for this option, your UI should be ready to deal with the possibility that it will get a partial result at first.
 - `pollInterval: number` (Optional, default is no polling). Setting a polling interval (in ms) will refetch your query from the server (forceFetch) on the interval rate provided by the key.
+- `fragments: FragmentDefinition[]` (Optional, default is `[]`). An array of fragment definitions that the `query` can reference. Generally created through `createFragment`, as described in the [fragments section](core.html#fragments).
 
 <h4 id="QueryObservable" title="QueryObservable">QueryObservable</h4>
 
@@ -262,6 +264,7 @@ Send a mutation to the server and get the result. The result is also incorporate
 
 - `mutation: string` The mutation to send to the server.
 - `variables: Object` The variables to send along with the mutation.
+- `fragments: FragmentDefinition[]` An array of fragment definitions that the `mutation` can reference. Generally created through `createFragment`, as described in the [fragments section](core.html#fragments).
 
 Here's how you would call a mutation and pass in arguments via variables:
 
@@ -317,3 +320,70 @@ Right now, this is a bit verbose because you have to list the names of the varia
 Apollo uses [fetch](https://fetch.spec.whatwg.org/) behind the scenes to make HTTP requests. Be aware that many browser versions now support the `window.fetch` function natively (check [caniuse.com](http://caniuse.com/#feat=fetch)), but Node, for example, doesn't (as of v6).
 
 Where it is not supported, you can use one of several popular polyfills, including [whatwg-fetch](https://github.com/github/fetch), [node-fetch](https://github.com/bitinn/node-fetch) or [isomorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch).
+
+<h2 id="fragments" title="Fragments">Fragments</h2>
+
+Apollo Client supports composition of queries and mutations using named fragments. For example, if you have several UI components and each defines a fragment that it must fetch in order to render itself, a root UI component can compose a single query that references each of those fragments. This single query is then fetched from the server and will return the data requested by each of the fragments. This alows you to get the data needed to render all of those UI components in a single request to your GraphQL server.
+
+For query composition through fragments to work, Apollo Client requires unique fragment names across your application and will warn you if this is not the case. We can use the `createFragment` method to register a fragment for use in queries or mutations.
+
+<h3 id="createFragment" title="createFragment">createFragment</h3>
+
+To create a fragment, you must use the `createFragment` method which is exposed as a named export of `apollo-client`. It keeps track of the fragment names being used across your application and will print a warning if there is a naming collision across a pair of named fragments. It takes the following arguments:
+
+- `doc: Document`: A GraphQL document represented as a GraphQL AST. This should contain the fragment definitions you would like use within your queries.
+- `fragments: FragmentDefinition[]` (Optional, default value is `[]`): A list of fragment definitions that will be prepended to the fragment definitions within `doc` and returned.
+
+The method `createFragment` returns a `FragmentDefinition[]`, which consists of the fragment definitions extracted from `doc` appended to the fragment definitions passed in as `fragments`. These fragment definitions can then be passed to `query`, `watchQuery` or `mutate` on an instance of Apollo Client and the GraphQL query or mutation will then be able to reference those fragments.
+
+<h3 id="fragment-example" title="fragment-example">Example with fragments</h3>
+
+Say we need to fetch a list of authors' first and last names and a list of publishers' names. We can imagine two queries that can accomplish this:
+
+```javascript
+client.query({ query: gql`
+  query {
+    author {
+      firstName
+      lastName
+    }
+  }`,
+});
+
+client.query({query: gql`
+  query {
+    publisher {
+      name
+    }
+  }`,
+})
+
+```
+
+Instead of firing those two queries separately, we can define the data that they request as fragments and register them with Apollo Client. Then, we can compose a single query that uses these fragments and fire that instead. We can do that with `createFragment`:
+
+```javascript
+const fragmentDefs = createFragment(gql`
+  fragment authors on RootQuery {
+    author {
+      firstName
+      lastName
+    }
+  }
+
+  fragment publishers on RootQuery {
+    publisher {
+      name
+    }
+  }
+`);
+
+client.query({ query: gql`
+  query {
+    ...authors
+    ...publishers
+  }`,
+}, fragmentDefs);
+```
+
+By doing this, we're no longer firing two queries. Instead, we're only firing one query which will get us all the data that we need. So, query composition through named fragments benefits you by reducing the number of roundtrips you make to the server.
