@@ -153,4 +153,4 @@ This means that your client code and server implementation can remain completely
 
 If you want to implement a network interface that natively supports batching, for example by sending queries to a special endpoint that can handle multiple operations, you can do that by implementing a special method in your network interface, in addition to the normal `query` method:
 
-- `batchQuery(request: GraphQLRequest[]): Promise<GraphQLResult[]>` This function on a batched network interface that takes an array of GraphQL request objects, submits a batched request that represents each of the requests and returns a promise. This promise is resolved with the results of each of the GraphQL requests. The promise should be rejected in case of a network error.
+- `batchQuery(request: GraphQLRequest[]): Promise<GraphQLResult[]>` This function on a batched network interface that takes an array of GraphQL request objects, submits a batched request that represents each of the requests and returns a promise. This promise is resolved with the results of each of the GraphQL requests. The promise should be rejected in case of an error.

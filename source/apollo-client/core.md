@@ -124,7 +124,7 @@ Of course, you don't always want to use the existing data in the store - sometim
 
 <h3 id="query" title="ApolloClient#query">ApolloClient#query(options)</h3>
 
-Run a GraphQL query and return a promise that resolves to a `GraphQLResult`.
+Run a GraphQL query and return a promise that resolves to a `GraphQLResult`. If there is an error, the promise is passed an instance of `ApolloError` which details the type of error that has occurred (i.e. a GraphQL error or a network error).
 
 - `query: string` A GraphQL query string to fetch.
 - `variables: Object` The variables to pass along with the query.
@@ -159,10 +159,6 @@ client.query({
   if (data) {
     console.log('got data', data);
   }
-
-  if (errors) {
-    console.log('got some GraphQL execution errors', errors);
-  }
 }).catch((error) => {
   console.log('there was an error sending the query', error);
 });
@@ -189,7 +185,7 @@ This is the object you get when you call `watchQuery`. It has just one method, `
 The object you pass into `QueryObservable#subscribe`. Includes optional callbacks to receive results:
 
 - `next(result: GraphQLResult)` Called when there is a new result for the query.
-- `error(error: Error)` Called when there is a network error for the query.
+- `error(error: ApolloError)` Called when there is a network or GraphQL error for the query. The type `ApolloError` exposes the fields `graphQLErrors: Error[]` and `networkError: Error` that allow you to inspect what kind of error was raised and handle it appropriately.
 
 <h4 id="QuerySubscription" title="QuerySubscription">QuerySubscription</h4>
 
@@ -228,10 +224,6 @@ const subscription = queryObservable.subscribe({
 
     if (data) {
       console.log('got data', data);
-    }
-
-    if (errors) {
-      console.log('got some GraphQL execution errors', errors);
     }
   },
   error: (error) => {
@@ -300,10 +292,6 @@ client.mutate({
 
   if (data) {
     console.log('got data', data);
-  }
-
-  if (errors) {
-    console.log('got some GraphQL execution errors', errors);
   }
 }).catch((error) => {
   console.log('there was an error sending the query', error);

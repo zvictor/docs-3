@@ -189,10 +189,6 @@ class postsList {
       if (data) {
         console.log('got data', data);
       }
-
-      if (errors) {
-        console.log('got some GraphQL execution errors', errors);
-      }
     }).catch((error) => {
       console.log('there was an error sending the query', error);
     });
@@ -371,10 +367,6 @@ class postsList {
 
         if (data) {
           console.log('got data', data);
-        }
-
-        if (errors) {
-          console.log('got some GraphQL execution errors', errors);
         }
       }).catch((error) => {
         console.log('there was an error sending the query', error);
