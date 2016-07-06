@@ -305,3 +305,17 @@ Right now, this is a bit verbose because you have to list the names of the varia
 Apollo uses [fetch](https://fetch.spec.whatwg.org/) behind the scenes to make HTTP requests. Be aware that many browser versions now support the `window.fetch` function natively (check [caniuse.com](http://caniuse.com/#feat=fetch)), but Node, for example, doesn't (as of v6).
 
 Where it is not supported, you can use one of several popular polyfills, including [whatwg-fetch](https://github.com/github/fetch), [node-fetch](https://github.com/bitinn/node-fetch) or [isomorphic-fetch](https://github.com/matthew-andrews/isomorphic-fetch).
+
+<h3 id="error-handling" title="Error Handling">Error Handling</h3>
+
+Apollo uses the custom error type `ApolloError`, a named export within `"apollo-client/errors"`, as the standard way to communicate errors to your application.
+
+`ApolloError` extends the standard Javascript `Error` type, meaning that you can treat it as a standard `Error` and expect it to work correctly. It also exposes some fields that will help you write code that handles different types of errors. As a rule of thumb, you should not use the error message string to determine the type of error that has occurred. Instead, you should use the information that `ApolloError` provides.
+
+<h3 id="apollo-error" title="ApolloError">ApolloError</h3>
+
+`ApolloError` exposes a couple of fields to make manging errors easier.
+
+- `graphQLErrors: GraphQLError[]`: Array containing the errors returned by the server on a specific GraphQL query. This is contained in the `errors` key in the JSON returned by the server.
+- `networkError: Error`: Error that has occurred in fetching the query from the server (e.g. Apollo Client is unable to reach the server).
+- `message: string`: The error message that describes what went wrong. If there were multiple errors, the error message includes the error messages for each element in `graphQLErrors` and the `networkError` if they are present.
