@@ -316,6 +316,6 @@ Apollo uses the custom error type `ApolloError`, a named export within `"apollo-
 
 `ApolloError` exposes a couple of fields to make manging errors easier.
 
-- `graphQLErrors: GraphQLError[]`: Array containing the errors returned by the server on a specific GraphQL query. This is contained in the `errors` key in the JSON returned by the server.
+- `graphQLErrors: GraphQLError[]`: Array containing the errors returned by the server on a specific GraphQL query. When Apollo Client sends a query to the GraphQL server, these errors are contained within the errors key of the response returned by the server.
 - `networkError: Error`: Error that has occurred in fetching the query from the server (e.g. Apollo Client is unable to reach the server).
-- `message: string`: The error message that describes what went wrong. If there were multiple errors, the error message includes the error messages for each element in `graphQLErrors` and the `networkError` if they are present.
+- `message: string`: The error message that describes what went wrong. If there were multiple errors, this error message includes the error messages (separated by newlines) for each element in `graphQLErrors` and the `networkError`, if they are defined.

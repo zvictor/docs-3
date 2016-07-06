@@ -184,7 +184,7 @@ class postsList {
         raw: raw,
       }
     }).then((graphQLResult) => {
-      const { errors, data } = graphQLResult;
+      const { data } = graphQLResult;
 
       if (data) {
         console.log('got data', data);
@@ -363,7 +363,7 @@ class postsList {
   reply(reply) {
     this.postReply(reply)
       .then((result: GraphQLResult) => {
-        const { errors, data } = result;
+        const { data } = result;
 
         if (data) {
           console.log('got data', data);
