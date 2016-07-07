@@ -350,7 +350,8 @@ Say we need to fetch a list of authors' names in one UI component and fetch the 
 client.query({ query: gql`
   query {
     author {
-      name
+      firstName
+      lastName
     }
   }`,
 });
