@@ -21,6 +21,7 @@ GraphQL
 ## Mutations
 1. Basics
 2. How they differ from queries
+3. Mutations in Relay (pros/cons)
 
 ## Subscriptions
 1. Basics
@@ -68,6 +69,7 @@ Apollo Client
 ## Mutations
 1. Basics
 2. Optimistic UI
+3. Custom mutation behaviors
 
 ## Subscriptions
 1. Basics
