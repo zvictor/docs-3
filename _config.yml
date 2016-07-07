@@ -36,14 +36,34 @@ sidebar_categories:
     - apollo-server/errors
 github_repo: apollostack/docs
 content_root: source
+
 logo:
-  desktop: /logo/large.png
+  desktop: /logo/square.png
   mobile: /logo/square.png
-nav_links:
-  apollostack.com: http://www.apollostack.com/
-  Blog: https://medium.com/apollo-stack
-  GitHub: https://github.com/apollostack
 favicon: /logo/square.png
+
+nav_links:
+  'Project':
+    url: http://www.apollostack.com/
+    partial: illustration-guide
+    target: _new
+  'Blog':
+    url: https://medium.com/apollo-stack
+    partial: illustration-compass
+    target: _new
+  'Docs':
+    url: http://docs.apollo-stack.com
+    partial: illustration-logs
+    active: true
+  'GitHub':
+    url: https://github.com/apollostack
+    partial: illustration-github
+    target: _new
+
+social_links:
+  github: 'https://github.com/apollostack'
+  twitter: '@apollostack'
+
 
 # API keys
 apis:
