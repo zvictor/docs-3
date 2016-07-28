@@ -102,6 +102,42 @@ query.fetchMore({
 
 Again, the result of the watched query will be updated in the store, even when updated with a completely differently shaped query.
 
+
+<h2 id="cursor-pagination">Cursor-based pagination</h2>
+
+A different common server-side implementation for the "infinite scroll" feature is a cursor-based approach. Every time the clients want to fetch more data, they can optionally pass an id of a cursor they got from the last fetch. If cursor is passed as an argument, it is simple to use with `fetchMore`:
+
+```js
+query.fetchMore({
+  query: gql`
+    query nextComments($cursor_id: String!) {
+      nextComments(cursor_id: $cursor_id) {
+        cursor
+        comments {
+          author
+          text
+        }
+      }
+    }
+  `,
+  variables: { cursor_id: cursor },
+  updateQuery: (previousResult, { fetchMoreResult }) => {
+    const prevEntry = previousResult.entry;
+    const newComments = fetchMoreResult.data.comments.nextComments;
+
+    // update cursor
+    cursor = fetchMoreResult.data.cursor;
+
+    return {
+      title: prevEntry.title,
+      author: prevEntry.author,
+      // put promoted comments in front
+      comments: [...newComments, ...prevEntry.comments],
+    };
+  }
+});
+```
+
 <h2 id="merge-function">Merge Function</h2>
 
 The merge function used in the example is acting as a reducer, similar to the reducers in [Redux](http://redux.js.org/docs/basics/Reducers.html).
