@@ -58,7 +58,7 @@ query.fetchMore({
   // limit and id variables are the same
   variables: { start: 10 },
   // tell Apollo Client how to merge the new results of the query
-  updateQuery: (previousResult, { fetchMoreResult }) => {
+  updateQuery: (previousResult, { fetchMoreResult, queryVariables }) => {
     const prevEntry = previousResult.entry;
     const newComments = fetchMoreResult.data.entry.comments;
     return {
@@ -87,7 +87,7 @@ query.fetchMore({
     }
   `,
   variables: { id: '1' },
-  updateQuery: (previousResult, { fetchMoreResult }) => {
+  updateQuery: (previousResult, { fetchMoreResult, queryVariables }) => {
     const prevEntry = previousResult.entry;
     const newComments = fetchMoreResult.data.promotedComments;
     return {
@@ -121,7 +121,7 @@ query.fetchMore({
     }
   `,
   variables: { cursor_id: cursor },
-  updateQuery: (previousResult, { fetchMoreResult }) => {
+  updateQuery: (previousResult, { fetchMoreResult, queryVariables }) => {
     const prevEntry = previousResult.entry;
     const newComments = fetchMoreResult.data.comments.nextComments;
 
@@ -146,3 +146,10 @@ You don't have to use Redux to understand reducers. All you need to know is that
 - must return an updated query result that incorporates `fetchMoreResult`
 - must avoid mutating the arguments, such that previous query result, and prefer cloning
 - should have no side effects
+
+<h3 id="merge-function-options">Options passed to the merge function</h3>
+
+Merge function `updateQuery` takes two arguments: previous result of the query from store and options. Here is a list of options:
+
+- `fetchMoreResult` - result of the `fetchMore` query
+- `queryVariables` - variables used on the original query
