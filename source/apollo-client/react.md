@@ -552,13 +552,13 @@ const ListWithDataAndState = connect(
 )(ListWithData);
 ```
 
-<h2 id="usage-with-react-router">Usage with ImmutableJs for redux store</h2>
+<h2 id="usage-with-immutable">Usage with ImmutableJs for redux store</h2>
 
 ```txt
 npm install immutable redux-immutable --save
 ```
 
-If you are using ImmutableJs or another form of immutable map as your redux store, `<ApolloProvider>` allows you to pass `immutable={true}` alongside your store to seperate the apollo-client store. For example:
+If you are using ImmutableJs or another form of immutable map as your redux store, `<ApolloProvider>` allows you to pass `immutable={true}` alongside your store to separate the apollo-client store. For example:
 
 ```js
 import { Map } from 'immutable';
@@ -601,7 +601,7 @@ const store = createStore(
   applyMiddleware(client.middleware())
 );
 
-// generic form container
+// generic form component
 class Container extends Component {
   render() {
     const { fields: { firstName }, handleSubmit } = this.props;
@@ -651,7 +651,7 @@ const withForm = reduxForm({
   },
 }))
 
-const ContainerWithQueryAndForm withQuery(withFrom(Container));
+const ContainerWithQueryAndForm = withQuery(withFrom(Container));
 ```
 
 
